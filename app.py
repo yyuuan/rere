@@ -34,20 +34,22 @@ st.title("📘 題庫練習系統")
 st.markdown(f"#### 題目 {q[0]}：{q[2]}")
 options = {"A": q[3], "B": q[4], "C": q[5], "D": q[6]}
 
-# 若尚未提交，顯示選項與提交按鈕
+# === 顯示選項與「提交答案」表單（只有未提交時顯示）===
 if not st.session_state.show_result:
-    st.session_state.user_answer = st.radio("請選擇答案：", list(options.keys()), format_func=lambda x: f"{x}. {options[x]}")
-    if st.button("✅ 提交答案"):
-        st.session_state.show_result = True
-        st.session_state.question_count += 1
-        if st.session_state.user_answer == q[7]:
-            st.success(f"答對了！答案是 {q[7]}：{options[q[7]]}")
-            st.session_state.score += 1
-        else:
-            st.error(f"答錯了，正確答案是 {q[7]}：{options[q[7]]}")
-
-# 若已提交，只顯示下一題按鈕
-if st.session_state.show_result:
+    with st.form("answer_form", clear_on_submit=False):
+        selected = st.radio("請選擇答案：", list(options.keys()), format_func=lambda x: f"{x}. {options[x]}")
+        submitted = st.form_submit_button("✅ 提交答案")
+        if submitted:
+            st.session_state.user_answer = selected
+            st.session_state.show_result = True
+            st.session_state.question_count += 1
+            if selected == q[7]:
+                st.success(f"答對了！答案是 {q[7]}：{options[q[7]]}")
+                st.session_state.score += 1
+            else:
+                st.error(f"答錯了，正確答案是 {q[7]}：{options[q[7]]}")
+else:
+    # 已答題 → 顯示結果（前面已顯示），並給「下一題」
     if st.button("➡️ 下一題"):
         load_question()
         st.rerun()
