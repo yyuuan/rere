@@ -42,12 +42,11 @@ if not st.session_state.answer_submitted:
         st.session_state.answer_submitted = True
         st.session_state.question_count += 1
         if st.session_state.user_answer == q[7]:
-            st.success("答對了！")
+            st.success(f"答對了！答案是 {q[7]}：{options[q[7]]}")
             st.session_state.score += 1
         else:
             st.error(f"答錯了，正確答案是 {q[7]}：{options[q[7]]}")
 else:
-    st.info(f"你選擇的是：{st.session_state.user_answer}，正確答案是：{q[7]}")
     if st.button("➡️ 下一題"):
         load_random_question()
         st.rerun()
