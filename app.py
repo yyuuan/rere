@@ -36,6 +36,7 @@ st.title("📝 題庫練習系統")
 st.markdown(f"#### 題目 {q[0]}：{q[2]}")
 options = {"A": q[3], "B": q[4], "C": q[5], "D": q[6]}
 
+# 顯示選項 + 答題按鈕
 if not st.session_state.answer_submitted:
     st.session_state.user_answer = st.radio("請選擇答案：", list(options.keys()), format_func=lambda x: f"{x}. {options[x]}")
     if st.button("✅ 提交答案"):
@@ -46,7 +47,9 @@ if not st.session_state.answer_submitted:
             st.session_state.score += 1
         else:
             st.error(f"答錯了，正確答案是 {q[7]}：{options[q[7]]}")
-else:
+
+# 顯示「下一題」按鈕（在提交後就顯示）
+if st.session_state.answer_submitted:
     if st.button("➡️ 下一題"):
         load_random_question()
         st.rerun()
