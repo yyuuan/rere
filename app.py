@@ -27,7 +27,7 @@ def load_question():
     st.session_state.show_result = False
     st.session_state.feedback = ""
 
-# 初次載入
+# 首次載入
 if st.session_state.current_question is None:
     load_question()
 
@@ -35,39 +35,54 @@ if st.session_state.current_question is None:
 q = st.session_state.current_question
 st.title("📘 題庫練習系統")
 st.markdown(f"#### 題目 {q[0]}：{q[2]}")
+
 options = {"A": q[3], "B": q[4], "C": q[5], "D": q[6]}
 
-# === 顯示選項 ===
+# === 顯示選項區塊 ===
+def show_options(disabled=False):
+    for key, text in options.items():
+        is_selected = (st.session_state.user_answer == key)
+        label = f"**{key}. {text}**" if is_selected else f"{key}. {text}"
+        st.radio("",
+                 [key], 
+                 key=f"radio_{key}", 
+                 index=0,
+                 label_visibility="collapsed",
+                 disabled=True if disabled else False,
+                 help=None)
+        st.markdown(label)
+
+# === 答題階段 ===
 if not st.session_state.show_result:
-    st.session_state.user_answer = st.radio(
-        "請選擇答案：", list(options.keys()),
-        format_func=lambda x: f"{x}. {options[x]}"
-    )
+    st.session_state.user_answer = st.radio("請選擇答案：", list(options.keys()), format_func=lambda x: f"{x}. {options[x]}")
     if st.button("✅ 提交答案"):
         st.session_state.show_result = True
         st.session_state.question_count += 1
-        correct = q[7]
-        if st.session_state.user_answer == correct:
+        if st.session_state.user_answer == q[7]:
             st.session_state.score += 1
-            st.session_state.feedback = f"✅ 答對了！答案是 {correct}：{options[correct]}"
+            st.session_state.feedback = f"✅ 答對了！答案是 {q[7]}：{options[q[7]]}"
         else:
-            st.session_state.feedback = f"❌ 答錯了，正確答案是 {correct}：{options[correct]}"
-
-# === 顯示結果（和題目同頁）===
-if st.session_state.show_result:
+            st.session_state.feedback = f"❌ 答錯了，正確答案是 {q[7]}：{options[q[7]]}"
+        st.rerun()
+else:
+    # 顯示選項（保留已選答案）
+    for k, v in options.items():
+        if k == st.session_state.user_answer:
+            st.markdown(f"👉 **{k}. {v}**")
+        else:
+            st.markdown(f"{k}. {v}")
+    # 顯示答題結果
     if "✅" in st.session_state.feedback:
         st.success(st.session_state.feedback)
     else:
         st.error(st.session_state.feedback)
 
+    # 下一題按鈕
     if st.button("➡️ 下一題"):
         load_question()
+        st.rerun()
 
 # === 統計資訊 ===
 if st.session_state.question_count > 0:
     st.markdown("---")
-    st.info(
-        f"已作答 {st.session_state.question_count} 題，"
-        f"答對 {st.session_state.score} 題，"
-        f"正確率：{(st.session_state.score / st.session_state.question_count) * 100:.1f}%"
-    )
+    st.info(f"已作答 {st.session_state.question_count} 題，答對 {st.session_state.score} 題，正確率：{(st.session_state.score / st.session_state.question_count) * 100:.1f}%")
